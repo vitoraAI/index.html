@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Replix Menu</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: Arial;
+        background: transparent;
+    }
+
+    #menu {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 480px;
+        height: 520px;
+        transform: translate(-50%, -50%);
+        background: rgba(20, 20, 20, 0.92);
+        border-radius: 10px;
+        padding: 10px;
+        display: none;
+        color: white;
+        user-select: none;
+    }
+
+    .title {
+        font-size: 20px;
+        text-align: center;
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+
+    .item {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.07);
+        margin-bottom: 6px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .submenu {
+        margin-left: 15px;
+        display: none;
+    }
+
+    .notification {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        background: rgba(0,0,0,0.85);
+        padding: 12px 18px;
+        border-radius: 6px;
+        display: none;
+        color: white;
+    }
+
+    #textInputBox, #keybindBox {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 350px;
+        padding: 20px;
+        transform: translate(-50%, -50%);
+        background: rgba(15, 15, 15, 0.95);
+        border-radius: 10px;
+        display: none;
+        text-align: center;
+        color: white;
+    }
+
+    #textInputBox input {
+        width: 90%;
+        padding: 7px;
+        margin-top: 10px;
+        background: #222;
+        border: none;
+        border-radius: 4px;
+        color: white;
+    }
+
+</style>
+</head>
+<body>
+
+<div id="menu">
+    <div class="title">Replix Menu</div>
+    <div id="menuContent"></div>
+</div>
+
+<div id="notif" class="notification"></div>
+
+<div id="textInputBox">
+    <div id="inputQuestion"></div>
+    <input id="textInput" type="text">
+</div>
+
+<div id="keybindBox">
+    <h3>Press any key…</h3>
+    <p id="keyInstruction"></p>
+</div>
+
+<script>
+let menuVisible = false;
+let currentMenu = [];
+
+window.addEventListener("message", function (event) {
+    let data = event.data;
+
+    if (data.action === "setMenuVisible") {
+        menuVisible = data.visible;
+        document.getElementById("menu").style.display = data.visible ? "block" : "none";
+    }
+
+    if (data.action === "updateMenu") {
+        loadMenu(data.menu);
+    }
+
+    if (data.action === "notify") {
+        showNotification(data.message);
+    }
+
+    if (data.action === "openTextInput") {
+        openTextInput(data.question, data.placeholder);
+    }
+
+    if (data.action === "openKeySelection") {
+        openKeySelection(data.instruction);
+    }
+});
+
+function loadMenu(menu) {
+    currentMenu = menu;
+    const container = document.getElementById("menuContent");
+    container.innerHTML = "";
+
+    menu.forEach(item => {
+        let div = document.createElement("div");
+        div.className = "item";
+        div.textContent = item.label;
+        div.onclick = () => {
+            fetch("https://replix/clickItem", {
+                method: "POST",
+                body: JSON.stringify(item)
+            });
+        };
+        container.appendChild(div);
+    });
+}
+
+function openTextInput(question, placeholder) {
+    document.getElementById("inputQuestion").textContent = question;
+    let input = document.getElementById("textInput");
+    input.value = "";
+    input.placeholder = placeholder;
+    document.getElementById("textInputBox").style.display = "block";
+
+    input.onkeydown = function(e) {
+        if (e.key === "Enter") {
+            fetch("https://replix/inputDone", {
+                method: "POST",
+                body: JSON.stringify({ value: input.value })
+            });
+            document.getElementById("textInputBox").style.display = "none";
+        }
+    };
+}
+
+function openKeySelection(instruction) {
+    document.getElementById("keyInstruction").textContent = instruction;
+    document.getElementById("keybindBox").style.display = "block";
+
+    document.onkeydown = function(e) {
+        fetch("https://replix/keySelected", {
+            method: "POST",
+            body: JSON.stringify({ key: e.key })
+        });
+        document.getElementById("keybindBox").style.display = "none";
+        document.onkeydown = null;
+    };
+}
+
+function showNotification(msg) {
+    let n = document.getElementById("notif");
+    n.innerHTML = msg;
+    n.style.display = "block";
+
+    setTimeout(() => n.style.display = "none", 2000);
+}
+</script>
+
+</body>
+</html>
