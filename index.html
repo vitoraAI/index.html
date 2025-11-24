@@ -1,196 +1,275 @@
+-- إنشاء HTML في متغير نصي
+local htmlContent = [[
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Replix Menu</title>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        font-family: Arial;
-        background: transparent;
-    }
-
-    #menu {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 480px;
-        height: 520px;
-        transform: translate(-50%, -50%);
-        background: rgba(20, 20, 20, 0.92);
-        border-radius: 10px;
-        padding: 10px;
-        display: none;
-        color: white;
-        user-select: none;
-    }
-
-    .title {
-        font-size: 20px;
-        text-align: center;
-        padding: 5px;
-        margin-bottom: 10px;
-    }
-
-    .item {
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.07);
-        margin-bottom: 6px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .submenu {
-        margin-left: 15px;
-        display: none;
-    }
-
-    .notification {
-        position: absolute;
-        right: 20px;
-        top: 20px;
-        background: rgba(0,0,0,0.85);
-        padding: 12px 18px;
-        border-radius: 6px;
-        display: none;
-        color: white;
-    }
-
-    #textInputBox, #keybindBox {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 350px;
-        padding: 20px;
-        transform: translate(-50%, -50%);
-        background: rgba(15, 15, 15, 0.95);
-        border-radius: 10px;
-        display: none;
-        text-align: center;
-        color: white;
-    }
-
-    #textInputBox input {
-        width: 90%;
-        padding: 7px;
-        margin-top: 10px;
-        background: #222;
-        border: none;
-        border-radius: 4px;
-        color: white;
-    }
-
-</style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: transparent;
+            color: white;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .menu {
+            width: 350px;
+            height: 500px;
+            background: rgba(25, 25, 30, 0.98);
+            border: 2px solid #ff1493;
+            border-radius: 10px;
+            position: fixed;
+            top: 100px;
+            left: 100px;
+            z-index: 9999;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+        }
+        .header {
+            background: linear-gradient(90deg, #ff1493, #da1884);
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+        .logo {
+            width: 25px;
+            height: 25px;
+            background: #ff69b4;
+            border-radius: 50% 10% 50% 10%;
+            position: absolute;
+            left: 15px;
+            transform: rotate(15deg);
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+        .content {
+            padding: 15px;
+            height: 450px;
+            overflow-y: auto;
+        }
+        .item {
+            margin-bottom: 10px;
+            padding: 12px;
+            background: rgba(40, 40, 45, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .item:hover {
+            background: rgba(255, 20, 147, 0.3);
+            border-color: #ff1493;
+        }
+        .players {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .checkbox-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 3px;
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+        }
+        .checkbox.checked {
+            background: #ff1493;
+            border-color: #ff1493;
+        }
+        .checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .slider {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+        .slider-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            border-radius: 10px;
+            position: relative;
+        }
+        .slider-thumb {
+            width: 18px;
+            height: 18px;
+            background: #ff1493;
+            border-radius: 50%;
+            position: absolute;
+            top: 1px;
+            right: -9px;
+            cursor: pointer;
+        }
+        .value {
+            color: #ff69b4;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+    <div class="menu">
+        <div class="header">
+            <div class="logo"></div>
+            <div class="title">Main Menu</div>
+        </div>
+        <div class="content">
+            <div class="item">
+                <div class="players">
+                    <span>Players</span>
+                    <span>></span>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="checkbox-container">
+                    <span>Checkbox 1</span>
+                    <div class="checkbox" id="cb1" onclick="toggleCheck('cb1')"></div>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="checkbox-container">
+                    <span>Checkbox 2</span>
+                    <div class="checkbox checked" id="cb2" onclick="toggleCheck('cb2')"></div>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Slider 2</span>
+                        <span class="value" id="val1">100</span>
+                    </div>
+                    <div class="slider" onclick="updateSlider(event, 'val1', this)">
+                        <div class="slider-fill" style="width: 50%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Slider 2</span>
+                        <span class="value" id="val2">100</span>
+                    </div>
+                    <div class="slider" onclick="updateSlider(event, 'val2', this)">
+                        <div class="slider-fill" style="width: 50%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Slider 2</span>
+                        <span class="value" id="val3">103</span>
+                    </div>
+                    <div class="slider" onclick="updateSlider(event, 'val3', this)">
+                        <div class="slider-fill" style="width: 51%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Slider 2</span>
+                        <span class="value" id="val4">100</span>
+                    </div>
+                    <div class="slider" onclick="updateSlider(event, 'val4', this)">
+                        <div class="slider-fill" style="width: 50%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Slider 2</span>
+                        <span class="value" id="val5">100</span>
+                    </div>
+                    <div class="slider" onclick="updateSlider(event, 'val5', this)">
+                        <div class="slider-fill" style="width: 50%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="item">
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Slider 2</span>
+                        <span class="value" id="val6">100</span>
+                    </div>
+                    <div class="slider" onclick="updateSlider(event, 'val6', this)">
+                        <div class="slider-fill" style="width: 50%">
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div id="menu">
-    <div class="title">Replix Menu</div>
-    <div id="menuContent"></div>
-</div>
-
-<div id="notif" class="notification"></div>
-
-<div id="textInputBox">
-    <div id="inputQuestion"></div>
-    <input id="textInput" type="text">
-</div>
-
-<div id="keybindBox">
-    <h3>Press any key…</h3>
-    <p id="keyInstruction"></p>
-</div>
-
-<script>
-let menuVisible = false;
-let currentMenu = [];
-
-window.addEventListener("message", function (event) {
-    let data = event.data;
-
-    if (data.action === "setMenuVisible") {
-        menuVisible = data.visible;
-        document.getElementById("menu").style.display = data.visible ? "block" : "none";
-    }
-
-    if (data.action === "updateMenu") {
-        loadMenu(data.menu);
-    }
-
-    if (data.action === "notify") {
-        showNotification(data.message);
-    }
-
-    if (data.action === "openTextInput") {
-        openTextInput(data.question, data.placeholder);
-    }
-
-    if (data.action === "openKeySelection") {
-        openKeySelection(data.instruction);
-    }
-});
-
-function loadMenu(menu) {
-    currentMenu = menu;
-    const container = document.getElementById("menuContent");
-    container.innerHTML = "";
-
-    menu.forEach(item => {
-        let div = document.createElement("div");
-        div.className = "item";
-        div.textContent = item.label;
-        div.onclick = () => {
-            fetch("https://replix/clickItem", {
-                method: "POST",
-                body: JSON.stringify(item)
-            });
-        };
-        container.appendChild(div);
-    });
-}
-
-function openTextInput(question, placeholder) {
-    document.getElementById("inputQuestion").textContent = question;
-    let input = document.getElementById("textInput");
-    input.value = "";
-    input.placeholder = placeholder;
-    document.getElementById("textInputBox").style.display = "block";
-
-    input.onkeydown = function(e) {
-        if (e.key === "Enter") {
-            fetch("https://replix/inputDone", {
-                method: "POST",
-                body: JSON.stringify({ value: input.value })
-            });
-            document.getElementById("textInputBox").style.display = "none";
+    <script>
+        function toggleCheck(id) {
+            var checkbox = document.getElementById(id);
+            checkbox.classList.toggle('checked');
         }
-    };
-}
-
-function openKeySelection(instruction) {
-    document.getElementById("keyInstruction").textContent = instruction;
-    document.getElementById("keybindBox").style.display = "block";
-
-    document.onkeydown = function(e) {
-        fetch("https://replix/keySelected", {
-            method: "POST",
-            body: JSON.stringify({ key: e.key })
-        });
-        document.getElementById("keybindBox").style.display = "none";
-        document.onkeydown = null;
-    };
-}
-
-function showNotification(msg) {
-    let n = document.getElementById("notif");
-    n.innerHTML = msg;
-    n.style.display = "block";
-
-    setTimeout(() => n.style.display = "none", 2000);
-}
-</script>
-
+        
+        function updateSlider(event, valueId, slider) {
+            var rect = slider.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            var value = Math.round((percent / 100) * 200);
+            
+            var fill = slider.querySelector('.slider-fill');
+            var valueElement = document.getElementById(valueId);
+            
+            fill.style.width = percent + '%';
+            valueElement.textContent = value;
+        }
+    </script>
 </body>
 </html>
+]]
